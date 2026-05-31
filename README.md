@@ -44,6 +44,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 Pre-commit hooks (Husky + lint-staged) auto-fix ESLint issues and format staged files with Prettier.
 
+### Test coverage
+
+All Vitest suites live in `src/app/__tests__/`: query engine (`generator`, `validator`, `executor`), Zustand store, preview panel run flow, and a page smoke test. Shared tree factories are in `test-helpers.ts`.
+
 ## Project structure
 
 ```
