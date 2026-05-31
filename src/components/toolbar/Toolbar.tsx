@@ -20,6 +20,8 @@ export function Toolbar() {
 
   const validation = useMemo(() => validateTree(tree), [tree])
 
+  const hasStatus = Boolean(importError) || !validation.valid
+
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== "z") return
@@ -74,135 +76,153 @@ export function Toolbar() {
   }
 
   return (
-    <div className="h-11 border-b border-border flex items-center gap-1 px-3 shrink-0">
-      {/* Undo / Redo */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => undo()}
-        disabled={!canUndo}
-        className="w-7 h-7 text-text-faint hover:text-text-primary disabled:opacity-30"
-        aria-label="Undo"
-      >
-        <Undo2 size={13} />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => redo()}
-        disabled={!canRedo}
-        className="w-7 h-7 text-text-faint hover:text-text-primary disabled:opacity-30"
-        aria-label="Redo"
-      >
-        <Redo2 size={13} />
-      </Button>
-
-      <Divider />
-
-      {/* Reset */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={resetTree}
-        className="w-7 h-7 text-text-faint hover:text-text-primary"
-        aria-label="Reset query"
-      >
-        <RotateCcw size={13} />
-      </Button>
-
-      <Divider />
-
-      {/* Save preset */}
-      {saving ? (
-        <div className="flex items-center gap-1.5">
-          <Input
-            autoFocus
-            value={presetName}
-            onChange={(e) => setPresetName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSave()
-              if (e.key === "Escape") setSaving(false)
-            }}
-            placeholder="preset name..."
-            className="h-7 w-36 text-xs bg-surface border-border"
-          />
+    <div className="border-b border-border shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-1 px-3 py-2.5 sm:py-2 min-h-11">
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1 w-full sm:flex-1 sm:min-w-0 sm:overflow-x-auto sm:overscroll-x-contain">
           <Button
-            size="sm"
-            onClick={handleSave}
-            className="h-7 text-xs bg-accent text-background hover:bg-accent-hover"
+            variant="ghost"
+            size="icon"
+            onClick={() => undo()}
+            disabled={!canUndo}
+            className="w-7 h-7 shrink-0 text-text-faint hover:text-text-primary disabled:opacity-30"
+            aria-label="Undo"
           >
-            Save
+            <Undo2 size={13} />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
-            onClick={() => setSaving(false)}
-            className="h-7 text-xs text-text-faint"
+            size="icon"
+            onClick={() => redo()}
+            disabled={!canRedo}
+            className="w-7 h-7 shrink-0 text-text-faint hover:text-text-primary disabled:opacity-30"
+            aria-label="Redo"
           >
-            Cancel
+            <Redo2 size={13} />
           </Button>
+
+          <Divider />
+
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={resetTree}
+            className="w-7 h-7 shrink-0 text-text-faint hover:text-text-primary"
+            aria-label="Reset query"
+          >
+            <RotateCcw size={13} />
+          </Button>
+
+          <Divider />
+
+          {saving ? (
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Input
+                autoFocus
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSave()
+                  if (e.key === "Escape") setSaving(false)
+                }}
+                placeholder="preset name..."
+                className="h-7 w-28 sm:w-36 text-xs bg-surface border-border"
+              />
+              <Button
+                size="sm"
+                onClick={handleSave}
+                className="h-7 shrink-0 text-xs bg-accent text-background hover:bg-accent-hover"
+              >
+                Save
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSaving(false)}
+                className="h-7 shrink-0 text-xs text-text-faint"
+              >
+                Cancel
+              </Button>
+            </div>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSaving(true)}
+              disabled={!validation.valid}
+              className="h-7 shrink-0 text-[11px] text-text-faint hover:text-text-primary gap-1.5 disabled:opacity-30"
+              aria-label="Save preset"
+            >
+              <Save size={12} />
+              <span className="hidden min-[400px]:inline">Save</span>
+            </Button>
+          )}
+
+          <Divider />
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleExport}
+            className="h-7 shrink-0 text-[11px] text-text-faint hover:text-text-primary gap-1.5"
+            aria-label="Export query"
+          >
+            <Download size={12} />
+            <span className="hidden min-[400px]:inline">Export</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            className="h-7 shrink-0 text-[11px] text-text-faint hover:text-text-primary gap-1.5"
+            aria-label="Import query"
+          >
+            <Upload size={12} />
+            <span className="hidden min-[400px]:inline">Import</span>
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImport}
+            className="hidden"
+          />
         </div>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setSaving(true)}
-          disabled={!validation.valid}
-          className="h-7 text-[11px] text-text-faint hover:text-text-primary gap-1.5 disabled:opacity-30"
-        >
-          <Save size={12} />
-          Save
-        </Button>
-      )}
 
-      <Divider />
-
-      {/* Export */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleExport}
-        className="h-7 text-[11px] text-text-faint hover:text-text-primary gap-1.5"
-      >
-        <Download size={12} />
-        Export
-      </Button>
-
-      {/* Import */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => fileInputRef.current?.click()}
-        className="h-7 text-[11px] text-text-faint hover:text-text-primary gap-1.5"
-      >
-        <Upload size={12} />
-        Import
-      </Button>
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept=".json"
-        onChange={handleImport}
-        className="hidden"
-      />
-
-      <div className="ml-auto flex items-center gap-3 min-w-0">
-        {importError && (
-          <span className="text-[11px] font-mono text-red-400 truncate max-w-[200px]">
-            {importError}
-          </span>
-        )}
-        {!validation.valid && (
-          <span className="text-[11px] font-mono text-red-400 shrink-0">
-            {validation.errors.length} error
-            {validation.errors.length !== 1 ? "s" : ""}
-          </span>
+        {hasStatus && (
+          <div className="flex justify-center sm:justify-end w-full sm:w-auto shrink-0 border-t border-border/60 sm:border-0 pt-2.5 sm:pt-0 sm:ml-auto sm:pl-2">
+            <ToolbarStatus importError={importError} validation={validation} />
+          </div>
         )}
       </div>
     </div>
   )
 }
 
+function ToolbarStatus({
+  importError,
+  validation,
+}: {
+  importError: string | null
+  validation: ReturnType<typeof validateTree>
+}) {
+  return (
+    <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-center">
+      {importError && (
+        <span className="text-[11px] font-mono text-red-400 break-words max-w-full">
+          {importError}
+        </span>
+      )}
+      {!validation.valid && (
+        <span className="text-[11px] font-mono text-red-400">
+          {validation.errors.length} error
+          {validation.errors.length !== 1 ? "s" : ""}
+        </span>
+      )}
+    </div>
+  )
+}
+
 function Divider() {
-  return <div className="w-px h-4 bg-border mx-1" />
+  return <div className="w-px h-4 bg-border mx-0.5 shrink-0" />
 }

@@ -15,6 +15,13 @@ interface UIStoreState {
 
   queryRunning: boolean
   setQueryRunning: (running: boolean) => void
+
+  sidebarOpen: boolean
+  setSidebarOpen: (open: boolean) => void
+  toggleSidebar: () => void
+
+  mobilePanel: "builder" | "preview"
+  setMobilePanel: (panel: "builder" | "preview") => void
 }
 
 export const useUIStore = create<UIStoreState>()((set) => ({
@@ -41,4 +48,11 @@ export const useUIStore = create<UIStoreState>()((set) => ({
       queryRunning: running,
       resultsOpen: running ? true : state.resultsOpen,
     })),
+
+  sidebarOpen: false,
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+
+  mobilePanel: "builder",
+  setMobilePanel: (panel) => set({ mobilePanel: panel }),
 }))

@@ -37,7 +37,7 @@ export function ValueInput({
     return null
   }
 
-  const baseInputClass = `h-8 text-xs bg-surface border-border font-mono w-28
+  const baseInputClass = `h-8 text-xs bg-surface border-border font-mono w-full sm:w-28
     ${error ? "border-red-500" : ""}
   `
 
@@ -45,7 +45,7 @@ export function ValueInput({
   if (field.type === "enum" && field.enumValues && opDef.valueArity === "single") {
     return (
       <Select value={String(value ?? "")} onValueChange={onChange}>
-        <SelectTrigger className={`${baseInputClass} w-32`}>
+        <SelectTrigger className={`${baseInputClass} sm:w-32`}>
           <SelectValue placeholder="value..." />
         </SelectTrigger>
         <SelectContent className="bg-surface border-border">

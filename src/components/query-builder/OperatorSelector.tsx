@@ -32,7 +32,7 @@ export function OperatorSelector({
   return (
     <Select value={value} onValueChange={(v) => onChange(v as Operator)} disabled={!fieldKey}>
       <SelectTrigger
-        className={`w-40 h-8 text-xs bg-surface border-border
+        className={`w-full sm:w-40 h-8 text-xs bg-surface border-border
           ${error ? "border-red-500" : ""}
           ${!fieldKey ? "opacity-40" : ""}
         `}

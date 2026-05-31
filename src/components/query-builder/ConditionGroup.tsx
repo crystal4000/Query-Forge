@@ -52,11 +52,11 @@ export function ConditionGroup({
       className={`
     border-l-2 rounded-r-lg
     ${hasError ? "ring-1 ring-red-500/30" : ""}
-    ${depth > 0 ? "ml-6" : ""}
+    ${depth > 0 ? "ml-3 sm:ml-6" : ""}
     p-3 mb-3
   `}
     >
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex flex-wrap items-center gap-2 mb-3">
         <Button
           variant="ghost"
           size="icon"

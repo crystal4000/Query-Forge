@@ -29,7 +29,7 @@ export function QueryBuilder() {
   if (!isClient) return null
 
   return (
-    <div className="flex-1 overflow-y-auto p-4">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 sm:p-4">
       <ConditionGroup
         group={tree.root}
         schemaId={tree.schemaId}

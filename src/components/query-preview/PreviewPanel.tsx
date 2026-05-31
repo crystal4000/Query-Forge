@@ -28,6 +28,7 @@ export function PreviewPanel() {
     queryRunning,
     resultsOpen,
     openResults,
+    setMobilePanel,
   } = useUIStore()
   const { addToHistory } = useHistoryStore()
   const [copied, setCopied] = useState(false)
@@ -57,10 +58,17 @@ export function PreviewPanel() {
     const result = executeQuery(tree)
     addToHistory(tree, result.totalCount)
     setLastRun(tree, result)
+
+    if (
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(max-width: 1023px)").matches
+    ) {
+      setMobilePanel("preview")
+    }
   }
 
   return (
-    <aside className="w-72 bg-surface/30 border-l border-border flex flex-col shrink-0 overflow-hidden">
+    <aside className="w-full h-full min-h-0 bg-surface/30 lg:border-l border-border flex flex-col overflow-hidden">
       <div className="flex border-b border-border shrink-0">
         {TABS.map((tab) => (
           <button

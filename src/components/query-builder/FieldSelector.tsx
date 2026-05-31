@@ -32,7 +32,7 @@ export function FieldSelector({ schemaId, value, onChange, error }: FieldSelecto
   return (
     <Select value={value} onValueChange={onChange}>
       <SelectTrigger
-        className={`w-36 h-8 text-xs bg-surface border-border font-mono
+        className={`w-full sm:w-36 h-8 text-xs bg-surface border-border font-mono
           ${error ? "border-red-500" : ""}
         `}
       >
