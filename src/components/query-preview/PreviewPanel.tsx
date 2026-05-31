@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react"
 import { useQueryStore } from "@/store/query-store"
 import { useUIStore } from "@/store/ui-store"
+import { useHistoryStore } from "@/store/history-store"
 import { generateQuery } from "@/lib/query-engine/generator"
 import { executeQuery } from "@/lib/query-engine/executor"
 import { validateTree } from "@/lib/query-engine/validator"
@@ -20,6 +21,7 @@ const TABS: { label: string; value: PreviewFormat }[] = [
 export function PreviewPanel() {
   const tree = useQueryStore((s) => s.tree)
   const { previewFormat, setPreviewFormat, resultsOpen, toggleResults } = useUIStore()
+  const { addToHistory } = useHistoryStore()
   const [copied, setCopied] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
 
@@ -45,7 +47,8 @@ export function PreviewPanel() {
     setIsRunning(true)
 
     await new Promise((resolve) => setTimeout(resolve, 300))
-    executeQuery(tree)
+    const result = executeQuery(tree)
+    addToHistory(tree, result.totalCount)
 
     if (!resultsOpen) toggleResults()
     setIsRunning(false)
