@@ -4,9 +4,11 @@ import { useMemo, useState } from "react"
 import { useQueryStore } from "@/store/query-store"
 import { useUIStore } from "@/store/ui-store"
 import { generateQuery } from "@/lib/query-engine/generator"
+import { executeQuery } from "@/lib/query-engine/executor"
 import { validateTree } from "@/lib/query-engine/validator"
 import { Button } from "@/components/ui/button"
-import { Copy, Check } from "lucide-react"
+import { Copy, Check, Play } from "lucide-react"
+import { ResultsPanel } from "../results/ResultsPanel"
 import type { PreviewFormat } from "@/lib/query-engine/types"
 
 const TABS: { label: string; value: PreviewFormat }[] = [
@@ -17,8 +19,9 @@ const TABS: { label: string; value: PreviewFormat }[] = [
 
 export function PreviewPanel() {
   const tree = useQueryStore((s) => s.tree)
-  const { previewFormat, setPreviewFormat } = useUIStore()
+  const { previewFormat, setPreviewFormat, resultsOpen, toggleResults } = useUIStore()
   const [copied, setCopied] = useState(false)
+  const [isRunning, setIsRunning] = useState(false)
 
   const output = useMemo(() => generateQuery(tree, previewFormat), [tree, previewFormat])
 
@@ -35,6 +38,17 @@ export function PreviewPanel() {
     await navigator.clipboard.writeText(previewText)
     setCopied(true)
     setTimeout(() => setCopied(false), 1500)
+  }
+
+  async function handleRun() {
+    if (!validation.valid) return
+    setIsRunning(true)
+
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    executeQuery(tree)
+
+    if (!resultsOpen) toggleResults()
+    setIsRunning(false)
   }
 
   return (
@@ -73,7 +87,9 @@ export function PreviewPanel() {
         </pre>
       </div>
 
-      <div className="border-t border-border p-3 shrink-0">
+      {resultsOpen && <ResultsPanel />}
+
+      <div className="border-t border-border p-3 flex items-center justify-between shrink-0">
         <span className="text-[11px] font-mono text-text-faint">
           {!validation.valid ? (
             <span className="text-red-400">
@@ -84,6 +100,16 @@ export function PreviewPanel() {
             "ready"
           )}
         </span>
+
+        <Button
+          onClick={handleRun}
+          disabled={!validation.valid || isRunning}
+          size="sm"
+          className="h-7 text-xs bg-accent text-background hover:bg-accent-hover gap-1.5 font-medium disabled:opacity-40"
+        >
+          <Play size={10} />
+          {isRunning ? "Running..." : "Run"}
+        </Button>
       </div>
     </aside>
   )
