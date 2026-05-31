@@ -16,6 +16,7 @@ export function Toolbar() {
 
   const [saving, setSaving] = useState(false)
   const [presetName, setPresetName] = useState("")
+  const [importError, setImportError] = useState<string | null>(null)
 
   const validation = useMemo(() => validateTree(tree), [tree])
 
@@ -46,21 +47,22 @@ export function Toolbar() {
   function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    setImportError(null)
 
     const reader = new FileReader()
     reader.onload = (ev) => {
       try {
         const parsed = JSON.parse(ev.target?.result as string)
-        // basic sanity check before loading
         if (parsed?.root?.type === "group" && parsed?.schemaId) {
           setTree(parsed)
+        } else {
+          setImportError("Invalid query file — missing schemaId or root group")
         }
       } catch {
-        // invalid JSON — silently ignore
+        setImportError("Could not parse JSON file")
       }
     }
     reader.readAsText(file)
-    // reset input so same file can be re-imported
     e.target.value = ""
   }
 
@@ -184,10 +186,14 @@ export function Toolbar() {
         className="hidden"
       />
 
-      {/* Validation status — right side */}
-      <div className="ml-auto">
+      <div className="ml-auto flex items-center gap-3 min-w-0">
+        {importError && (
+          <span className="text-[11px] font-mono text-red-400 truncate max-w-[200px]">
+            {importError}
+          </span>
+        )}
         {!validation.valid && (
-          <span className="text-[11px] font-mono text-red-400">
+          <span className="text-[11px] font-mono text-red-400 shrink-0">
             {validation.errors.length} error
             {validation.errors.length !== 1 ? "s" : ""}
           </span>

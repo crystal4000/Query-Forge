@@ -4,7 +4,8 @@ import { useQueryStore } from "@/store/query-store"
 import { useHistoryStore } from "@/store/history-store"
 import { SCHEMAS } from "@/lib/schema/schema"
 import { Button } from "@/components/ui/button"
-import { Users, ShoppingCart, Box, Bookmark, Clock, Trash2 } from "lucide-react"
+import { Users, ShoppingCart, Box, Bookmark, Clock, Trash2, BookmarkX, History } from "lucide-react"
+import { EmptyState } from "@/components/ui/state-placeholder"
 import type { Schema } from "@/lib/query-engine/types"
 
 const SCHEMA_ICONS: Record<string, React.ReactNode> = {
@@ -61,10 +62,15 @@ export function Sidebar() {
           </Section>
         )}
 
-        {/* Saved Presets */}
-        {presets.length > 0 && (
-          <Section label="Saved Queries">
-            {presets.map((preset) => (
+        <Section label="Saved Queries">
+          {presets.length === 0 ? (
+            <EmptyState
+              compact
+              icon={<BookmarkX size={14} strokeWidth={1.5} />}
+              title="No saved queries yet"
+            />
+          ) : (
+            presets.map((preset) => (
               <div
                 key={preset.id}
                 className="flex items-center gap-2 px-3 py-1.5 group hover:bg-surface cursor-pointer"
@@ -84,14 +90,19 @@ export function Sidebar() {
                   <Trash2 size={10} />
                 </Button>
               </div>
-            ))}
-          </Section>
-        )}
+            ))
+          )}
+        </Section>
 
-        {/* Query History */}
-        {history.length > 0 && (
-          <Section label="History">
-            {history.slice(0, 10).map((entry) => (
+        <Section label="History">
+          {history.length === 0 ? (
+            <EmptyState
+              compact
+              icon={<History size={14} strokeWidth={1.5} />}
+              title="Run a query to build history"
+            />
+          ) : (
+            history.slice(0, 10).map((entry) => (
               <div
                 key={entry.id}
                 className="flex items-center gap-2 px-3 py-1.5 group hover:bg-surface cursor-pointer"
@@ -103,9 +114,9 @@ export function Sidebar() {
                   <p className="text-[10px] text-text-faint font-mono">{entry.resultCount} rows</p>
                 </div>
               </div>
-            ))}
-          </Section>
-        )}
+            ))
+          )}
+        </Section>
       </div>
     </aside>
   )

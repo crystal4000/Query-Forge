@@ -9,7 +9,7 @@ import { executeQuery } from "@/lib/query-engine/executor"
 import { validateTree } from "@/lib/query-engine/validator"
 import { Button } from "@/components/ui/button"
 import { Copy, Check, Play } from "lucide-react"
-import { ResultsPanel } from "../results/ResultsPanel"
+import { ResultsSection } from "../results/ResultsSection"
 import type { PreviewFormat } from "@/lib/query-engine/types"
 
 const TABS: { label: string; value: PreviewFormat }[] = [
@@ -20,10 +20,17 @@ const TABS: { label: string; value: PreviewFormat }[] = [
 
 export function PreviewPanel() {
   const tree = useQueryStore((s) => s.tree)
-  const { previewFormat, setPreviewFormat, resultsOpen, lastRun, setLastRun } = useUIStore()
+  const {
+    previewFormat,
+    setPreviewFormat,
+    setLastRun,
+    setQueryRunning,
+    queryRunning,
+    resultsOpen,
+    openResults,
+  } = useUIStore()
   const { addToHistory } = useHistoryStore()
   const [copied, setCopied] = useState(false)
-  const [isRunning, setIsRunning] = useState(false)
 
   const output = useMemo(() => generateQuery(tree, previewFormat), [tree, previewFormat])
 
@@ -44,13 +51,12 @@ export function PreviewPanel() {
 
   async function handleRun() {
     if (!validation.valid) return
-    setIsRunning(true)
+    setQueryRunning(true)
 
     await new Promise((resolve) => setTimeout(resolve, 300))
     const result = executeQuery(tree)
     addToHistory(tree, result.totalCount)
     setLastRun(tree, result)
-    setIsRunning(false)
   }
 
   return (
@@ -89,10 +95,10 @@ export function PreviewPanel() {
         </pre>
       </div>
 
-      {resultsOpen && lastRun && <ResultsPanel />}
+      <ResultsSection />
 
-      <div className="border-t border-border p-3 flex items-center justify-between shrink-0">
-        <span className="text-[11px] font-mono text-text-faint">
+      <div className="border-t border-border p-3 flex items-center justify-between shrink-0 gap-2">
+        <span className="text-[11px] font-mono text-text-faint min-w-0">
           {!validation.valid ? (
             <span className="text-red-400">
               {validation.errors.length} error
@@ -103,14 +109,24 @@ export function PreviewPanel() {
           )}
         </span>
 
+        {!resultsOpen && (
+          <button
+            type="button"
+            onClick={openResults}
+            className="text-[10px] font-mono text-text-faint hover:text-accent transition-colors shrink-0"
+          >
+            show results
+          </button>
+        )}
+
         <Button
           onClick={handleRun}
-          disabled={!validation.valid || isRunning}
+          disabled={!validation.valid || queryRunning}
           size="sm"
           className="h-7 text-xs bg-accent text-background hover:bg-accent-hover gap-1.5 font-medium disabled:opacity-40"
         >
           <Play size={10} />
-          {isRunning ? "Running..." : "Run"}
+          {queryRunning ? "Running..." : "Run"}
         </Button>
       </div>
     </aside>

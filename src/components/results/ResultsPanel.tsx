@@ -4,7 +4,8 @@ import { useMemo } from "react"
 import { useQueryStore } from "@/store/query-store"
 import { useUIStore } from "@/store/ui-store"
 import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
+import { EmptyState } from "@/components/ui/state-placeholder"
+import { TableProperties, X } from "lucide-react"
 
 export function ResultsPanel() {
   const tree = useQueryStore((s) => s.tree)
@@ -38,6 +39,7 @@ export function ResultsPanel() {
           size="icon"
           onClick={toggleResults}
           className="w-5 h-5 text-text-faint hover:text-text-primary shrink-0"
+          aria-label="Close results"
         >
           <X size={11} />
         </Button>
@@ -45,9 +47,12 @@ export function ResultsPanel() {
 
       <div className="overflow-y-auto flex-1">
         {totalCount === 0 ? (
-          <div className="flex items-center justify-center h-20">
-            <p className="text-[11px] text-text-faint font-mono">no matching rows</p>
-          </div>
+          <EmptyState
+            icon={<TableProperties size={18} strokeWidth={1.5} />}
+            title="No matching rows"
+            description="Try different filters or check your mock dataset."
+            className="py-6"
+          />
         ) : (
           <table className="w-full text-[10px] font-mono">
             <thead className="sticky top-0 bg-surface">

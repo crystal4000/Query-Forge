@@ -20,6 +20,8 @@ import { isConditionRule, isConditionGroup } from "@/lib/query-engine/types"
 import type { ConditionGroup as ConditionGroupType, QueryNode } from "@/lib/query-engine/types"
 import { ConditionRule } from "./ConditionRule"
 import { ConditionGroup } from "./ConditionGroup"
+import { EmptyState } from "@/components/ui/state-placeholder"
+import { ListFilter } from "lucide-react"
 
 interface DndConditionListProps {
   group: ConditionGroupType
@@ -51,6 +53,17 @@ export function DndConditionList({ group, schemaId, depth, errorIds }: DndCondit
   }
 
   const childIds = group.children.map((c) => c.id)
+
+  if (group.children.length === 0) {
+    return (
+      <EmptyState
+        icon={<ListFilter size={18} strokeWidth={1.5} />}
+        title="No conditions in this group"
+        description="Add a rule or nested group below."
+        className="py-4"
+      />
+    )
+  }
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

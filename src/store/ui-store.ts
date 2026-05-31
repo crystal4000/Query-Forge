@@ -7,10 +7,14 @@ interface UIStoreState {
 
   resultsOpen: boolean
   toggleResults: () => void
+  openResults: () => void
 
   lastRun: QueryResult | null
   lastRunTreeKey: string | null
   setLastRun: (tree: QueryTree, result: QueryResult) => void
+
+  queryRunning: boolean
+  setQueryRunning: (running: boolean) => void
 }
 
 export const useUIStore = create<UIStoreState>()((set) => ({
@@ -19,6 +23,7 @@ export const useUIStore = create<UIStoreState>()((set) => ({
 
   resultsOpen: false,
   toggleResults: () => set((state) => ({ resultsOpen: !state.resultsOpen })),
+  openResults: () => set({ resultsOpen: true }),
 
   lastRun: null,
   lastRunTreeKey: null,
@@ -27,5 +32,13 @@ export const useUIStore = create<UIStoreState>()((set) => ({
       lastRun: result,
       lastRunTreeKey: JSON.stringify(tree),
       resultsOpen: true,
+      queryRunning: false,
     }),
+
+  queryRunning: false,
+  setQueryRunning: (running) =>
+    set((state) => ({
+      queryRunning: running,
+      resultsOpen: running ? true : state.resultsOpen,
+    })),
 }))
