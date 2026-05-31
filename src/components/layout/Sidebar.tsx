@@ -111,8 +111,6 @@ export function Sidebar() {
   )
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
-
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="py-3 border-b border-border last:border-0">

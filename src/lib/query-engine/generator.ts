@@ -1,10 +1,7 @@
 import type {
   QueryTree,
-  QueryNode,
   ConditionRule,
   ConditionGroup,
-  LogicOperator,
-  Operator,
   RuleValue,
   SQLOutput,
   MongoOutput,
@@ -17,7 +14,7 @@ import {
   isNumberRange,
 } from "@/lib/query-engine/types"
 
-// ── SQL Generator ────────────────────────────────────────────────────────────
+//  SQL Generator
 
 function ruleToSQL(rule: ConditionRule): string {
   const { field, operator, value } = rule
@@ -109,7 +106,7 @@ export function generateSQL(tree: QueryTree): SQLOutput {
   return { format: "sql", query }
 }
 
-// ── Mongo Generator ──────────────────────────────────────────────────────────
+//  Mongo Generator
 
 function ruleToMongo(rule: ConditionRule): Record<string, unknown> {
   const { field, operator, value } = rule
@@ -187,7 +184,7 @@ export function generateMongo(tree: QueryTree): MongoOutput {
   }
 }
 
-// ── JSON Generator ───────────────────────────────────────────────────────────
+//  JSON Generator
 
 export function generateJSON(tree: QueryTree): JSONOutput {
   return {
@@ -196,7 +193,7 @@ export function generateJSON(tree: QueryTree): JSONOutput {
   }
 }
 
-// ── Entry Point ──────────────────────────────────────────────────────────────
+//  Entry Point
 
 export function generateQuery(tree: QueryTree, format: "sql" | "mongo" | "json") {
   switch (format) {

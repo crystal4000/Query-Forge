@@ -12,7 +12,7 @@ import type {
 } from "@/lib/query-engine/types"
 import { isConditionGroup } from "@/lib/query-engine/types"
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+//  Helpers
 
 const DEFAULT_ROOT_ID = "root"
 const DEFAULT_RULE_ID = "default-rule"
@@ -116,7 +116,7 @@ function reorderChildrenInGroup(
   }
 }
 
-// ── Store Types ──────────────────────────────────────────────────────────────
+//  Store Types
 
 interface QueryStoreState {
   tree: QueryTree
@@ -144,11 +144,11 @@ interface QueryStoreState {
   resetTree: () => void
 }
 
-// ── Store ────────────────────────────────────────────────────────────────────
+//  Store
 
 export const useQueryStore = create<QueryStoreState>()(
   temporal(
-    (set, get) => ({
+    (set) => ({
       tree: makeDefaultTree("users"),
 
       setSchema: (schemaId) => set({ tree: makeDefaultTree(schemaId) }),
@@ -262,7 +262,7 @@ export const useQueryStore = create<QueryStoreState>()(
   )
 )
 
-// ── Undo/Redo ────────────────────────────────────────────────────────────────
+//  Undo/Redo
 // zundo exposes useTemporalStore separately
 
 // Derive the temporal store from the query store instance

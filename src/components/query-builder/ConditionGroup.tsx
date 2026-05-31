@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { ChevronDown, ChevronRight, Plus, FolderPlus, Trash2 } from "lucide-react"
 import { LogicToggle } from "./LogicToggle"
 import { useQueryStore } from "@/store/query-store"
-import type { ConditionGroup as ConditionGroupType, LogicOperator } from "@/lib/query-engine/types"
+import type { ConditionGroup as ConditionGroupType } from "@/lib/query-engine/types"
 
 const DndConditionList = dynamic(
   () =>
@@ -15,21 +15,7 @@ const DndConditionList = dynamic(
   { ssr: false }
 )
 
-// const DEPTH_BORDER_COLORS = ["#3ecf8e", "#22c4b0", "#3b82f6", "#a855f7"];
-
-// const DEPTH_BACKGROUNDS = [
-//   "rgba(62, 207, 142, 0.05)",
-//   "rgba(34, 196, 176, 0.08)",
-//   "rgba(59, 130, 246, 0.08)",
-//   "rgba(168, 85, 247, 0.08)",
-// ];
-
-const DEPTH_BORDER_COLORS = [
-  "#3ecf8e", // depth 0 — Supabase green
-  "#2dd4a0", // depth 1 — teal green
-  "#22c4b0", // depth 2 — teal
-  "#1ab4bc", // depth 3 — cool teal
-]
+const DEPTH_BORDER_COLORS = ["#3ecf8e", "#2dd4a0", "#22c4b0", "#1ab4bc"]
 
 const DEPTH_BACKGROUNDS = [
   "rgba(62, 207, 142, 0.04)",
@@ -57,8 +43,6 @@ export function ConditionGroup({
 
   const hasError = errorIds.has(group.id)
 
-  console.log("ConditionGroup depth:", depth, "id:", group.id)
-
   return (
     <div
       style={{
@@ -72,7 +56,6 @@ export function ConditionGroup({
     p-3 mb-3
   `}
     >
-      {/* Group header */}
       <div className="flex items-center gap-2 mb-3">
         <Button
           variant="ghost"
@@ -84,10 +67,7 @@ export function ConditionGroup({
           {group.collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
         </Button>
 
-        <LogicToggle
-          value={group.logic}
-          onChange={(_logic: LogicOperator) => toggleGroupLogic(group.id)}
-        />
+        <LogicToggle value={group.logic} onChange={() => toggleGroupLogic(group.id)} />
 
         <span className="text-[11px] text-text-faint">
           {group.children.length} condition
@@ -109,12 +89,10 @@ export function ConditionGroup({
         )}
       </div>
 
-      {/* Children via dnd list */}
       {!group.collapsed && (
         <DndConditionList group={group} schemaId={schemaId} depth={depth} errorIds={errorIds} />
       )}
 
-      {/* Add buttons */}
       {!group.collapsed && (
         <div className="flex gap-2 mt-3">
           <Button

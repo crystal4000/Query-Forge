@@ -1,10 +1,4 @@
-import type {
-  QueryTree,
-  ConditionGroup,
-  ConditionRule,
-  QueryNode,
-  QueryResult,
-} from "@/lib/query-engine/types"
+import type { QueryTree, ConditionRule, QueryNode, QueryResult } from "@/lib/query-engine/types"
 import {
   isConditionGroup,
   isConditionRule,
@@ -13,7 +7,7 @@ import {
 } from "@/lib/query-engine/types"
 import { MOCK_DATASETS } from "@/app/data/mock-datasets"
 
-// ── Rule Evaluator ───────────────────────────────────────────────────────────
+//  Rule Evaluator
 
 function evaluateRule(rule: ConditionRule, row: Record<string, unknown>): boolean {
   const { field, operator, value } = rule
@@ -80,7 +74,7 @@ function evaluateRule(rule: ConditionRule, row: Record<string, unknown>): boolea
   }
 }
 
-// ── Group Evaluator (recursive) ──────────────────────────────────────────────
+//  Group Evaluator (recursive)
 
 function evaluateNode(node: QueryNode, row: Record<string, unknown>): boolean {
   if (isConditionRule(node)) return evaluateRule(node, row)
@@ -98,7 +92,7 @@ function evaluateNode(node: QueryNode, row: Record<string, unknown>): boolean {
   return false
 }
 
-// ── Entry Point ──────────────────────────────────────────────────────────────
+//  Entry Point
 
 export function executeQuery<T = Record<string, unknown>>(tree: QueryTree): QueryResult<T> {
   const start = performance.now()
