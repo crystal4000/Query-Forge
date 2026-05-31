@@ -1,26 +1,90 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* ── Colors ── */
+  --color-background: #0f1117;
+  --color-surface: #1c1c24;
+  --color-surface-raised: #22222e;
+  --color-border: #2a2a35;
+  --color-border-subtle: #1f1f2a;
+
+  --color-accent: #3ecf8e;
+  --color-accent-hover: #2bba7a;
+  --color-accent-muted: #3ecf8e1a;
+
+  --color-text-primary: #ededed;
+  --color-text-muted: #8a8a9a;
+  --color-text-faint: #55556a;
+
+  /* Nesting depth borders */
+  --color-depth-1: #3ecf8e;
+  --color-depth-2: #2dd4a0;
+  --color-depth-3: #22c4b0;
+  --color-depth-4: #1ab4bc;
+
+  /* Status */
+  --color-error: #f87171;
+  --color-warning: #fbbf24;
+  --color-success: #3ecf8e;
+
+  /* ── Typography ── */
+  --font-sans: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* ── Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* ── Transitions ── */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Light mode overrides */
+.light {
+  --color-background: #f8f7f4;
+  --color-surface: #ffffff;
+  --color-surface-raised: #f0eeeb;
+  --color-border: #e2e0dc;
+  --color-border-subtle: #ebe9e5;
+
+  --color-text-primary: #111118;
+  --color-text-muted: #6b6b7a;
+  --color-text-faint: #a0a0b0;
+
+  --color-accent-muted: #3ecf8e22;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ── Base styles ── */
+* {
+  border-color: var(--color-border);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-faint);
+}
+
+/* Monospace utility */
+.font-mono {
+  font-family: var(--font-mono);
 }
