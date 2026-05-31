@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { PreviewFormat } from "@/lib/query-engine/types"
+import type { PreviewFormat, QueryResult, QueryTree } from "@/lib/query-engine/types"
 
 interface UIStoreState {
   previewFormat: PreviewFormat
@@ -7,6 +7,10 @@ interface UIStoreState {
 
   resultsOpen: boolean
   toggleResults: () => void
+
+  lastRun: QueryResult | null
+  lastRunTreeKey: string | null
+  setLastRun: (tree: QueryTree, result: QueryResult) => void
 }
 
 export const useUIStore = create<UIStoreState>()((set) => ({
@@ -15,4 +19,13 @@ export const useUIStore = create<UIStoreState>()((set) => ({
 
   resultsOpen: false,
   toggleResults: () => set((state) => ({ resultsOpen: !state.resultsOpen })),
+
+  lastRun: null,
+  lastRunTreeKey: null,
+  setLastRun: (tree, result) =>
+    set({
+      lastRun: result,
+      lastRunTreeKey: JSON.stringify(tree),
+      resultsOpen: true,
+    }),
 }))

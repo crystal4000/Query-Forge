@@ -20,7 +20,7 @@ const TABS: { label: string; value: PreviewFormat }[] = [
 
 export function PreviewPanel() {
   const tree = useQueryStore((s) => s.tree)
-  const { previewFormat, setPreviewFormat, resultsOpen, toggleResults } = useUIStore()
+  const { previewFormat, setPreviewFormat, resultsOpen, lastRun, setLastRun } = useUIStore()
   const { addToHistory } = useHistoryStore()
   const [copied, setCopied] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
@@ -49,8 +49,7 @@ export function PreviewPanel() {
     await new Promise((resolve) => setTimeout(resolve, 300))
     const result = executeQuery(tree)
     addToHistory(tree, result.totalCount)
-
-    if (!resultsOpen) toggleResults()
+    setLastRun(tree, result)
     setIsRunning(false)
   }
 
@@ -90,7 +89,7 @@ export function PreviewPanel() {
         </pre>
       </div>
 
-      {resultsOpen && <ResultsPanel />}
+      {resultsOpen && lastRun && <ResultsPanel />}
 
       <div className="border-t border-border p-3 flex items-center justify-between shrink-0">
         <span className="text-[11px] font-mono text-text-faint">
