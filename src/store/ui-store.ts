@@ -22,6 +22,10 @@ interface UIStoreState {
 
   mobilePanel: "builder" | "preview"
   setMobilePanel: (panel: "builder" | "preview") => void
+
+  validationRevealed: boolean
+  revealValidation: () => void
+  resetValidationFeedback: () => void
 }
 
 export const useUIStore = create<UIStoreState>()((set) => ({
@@ -55,4 +59,8 @@ export const useUIStore = create<UIStoreState>()((set) => ({
 
   mobilePanel: "builder",
   setMobilePanel: (panel) => set({ mobilePanel: panel }),
+
+  validationRevealed: false,
+  revealValidation: () => set({ validationRevealed: true }),
+  resetValidationFeedback: () => set({ validationRevealed: false }),
 }))

@@ -11,6 +11,7 @@ import type {
   RuleValue,
 } from "@/lib/query-engine/types"
 import { isConditionGroup } from "@/lib/query-engine/types"
+import { useUIStore } from "@/store/ui-store"
 
 //  Helpers
 
@@ -151,7 +152,10 @@ export const useQueryStore = create<QueryStoreState>()(
     (set) => ({
       tree: makeDefaultTree("users"),
 
-      setSchema: (schemaId) => set({ tree: makeDefaultTree(schemaId) }),
+      setSchema: (schemaId) => {
+        useUIStore.getState().resetValidationFeedback()
+        set({ tree: makeDefaultTree(schemaId) })
+      },
 
       addRule: (groupId) =>
         set((state) => ({
@@ -249,10 +253,12 @@ export const useQueryStore = create<QueryStoreState>()(
 
       setTree: (tree) => set({ tree }),
 
-      resetTree: () =>
+      resetTree: () => {
+        useUIStore.getState().resetValidationFeedback()
         set((state) => ({
           tree: makeDefaultTree(state.tree.schemaId),
-        })),
+        }))
+      },
     }),
     {
       // Only these actions get recorded in undo history

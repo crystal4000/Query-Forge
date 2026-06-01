@@ -13,13 +13,14 @@ import {
   isDateRange,
   isNumberRange,
 } from "@/lib/query-engine/types"
+import { isRuleComplete } from "@/lib/query-engine/validator"
+
+const SQL_PREVIEW_PLACEHOLDER = "-- Complete your conditions to generate a WHERE clause"
 
 //  SQL Generator
 
 function ruleToSQL(rule: ConditionRule): string {
   const { field, operator, value } = rule
-
-  if (!field) return "/* incomplete rule */"
 
   switch (operator) {
     case "equals":
@@ -77,7 +78,7 @@ function formatSQLValue(value: RuleValue): string {
   return `'${String(value).replace(/'/g, "''")}'`
 }
 
-function groupToSQL(group: ConditionGroup, depth: number = 0): string {
+function groupToSQL(group: ConditionGroup, schemaId: string, depth: number = 0): string {
   if (group.children.length === 0) return ""
 
   const indent = "  ".repeat(depth + 1)
@@ -85,9 +86,12 @@ function groupToSQL(group: ConditionGroup, depth: number = 0): string {
 
   const parts = group.children
     .map((child) => {
-      if (isConditionRule(child)) return indent + ruleToSQL(child)
+      if (isConditionRule(child)) {
+        if (!isRuleComplete(child, schemaId)) return ""
+        return indent + ruleToSQL(child)
+      }
       if (isConditionGroup(child)) {
-        const inner = groupToSQL(child, depth + 1)
+        const inner = groupToSQL(child, schemaId, depth + 1)
         return inner ? `${indent}(\n${inner}\n${indent})` : ""
       }
       return ""
@@ -98,10 +102,10 @@ function groupToSQL(group: ConditionGroup, depth: number = 0): string {
 }
 
 export function generateSQL(tree: QueryTree): SQLOutput {
-  const where = groupToSQL(tree.root)
+  const where = groupToSQL(tree.root, tree.schemaId)
   const query = where
     ? `SELECT * FROM ${tree.schemaId}\nWHERE (\n${where}\n)`
-    : `SELECT * FROM ${tree.schemaId}`
+    : `SELECT * FROM ${tree.schemaId}\n${SQL_PREVIEW_PLACEHOLDER}`
 
   return { format: "sql", query }
 }
@@ -110,8 +114,6 @@ export function generateSQL(tree: QueryTree): SQLOutput {
 
 function ruleToMongo(rule: ConditionRule): Record<string, unknown> {
   const { field, operator, value } = rule
-
-  if (!field) return {}
 
   switch (operator) {
     case "equals":
@@ -158,15 +160,18 @@ function ruleToMongo(rule: ConditionRule): Record<string, unknown> {
   }
 }
 
-function groupToMongo(group: ConditionGroup): Record<string, unknown> {
+function groupToMongo(group: ConditionGroup, schemaId: string): Record<string, unknown> {
   if (group.children.length === 0) return {}
 
   const mongoLogic = group.logic === "AND" ? "$and" : "$or"
 
   const parts = group.children
     .map((child) => {
-      if (isConditionRule(child)) return ruleToMongo(child)
-      if (isConditionGroup(child)) return groupToMongo(child)
+      if (isConditionRule(child)) {
+        if (!isRuleComplete(child, schemaId)) return null
+        return ruleToMongo(child)
+      }
+      if (isConditionGroup(child)) return groupToMongo(child, schemaId)
       return null
     })
     .filter((p): p is Record<string, unknown> => p !== null && Object.keys(p).length > 0)
@@ -180,7 +185,7 @@ function groupToMongo(group: ConditionGroup): Record<string, unknown> {
 export function generateMongo(tree: QueryTree): MongoOutput {
   return {
     format: "mongo",
-    filter: groupToMongo(tree.root),
+    filter: groupToMongo(tree.root, tree.schemaId),
   }
 }
 

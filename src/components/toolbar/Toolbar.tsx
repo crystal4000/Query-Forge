@@ -3,7 +3,8 @@
 import { useRef, useState, useMemo, useEffect } from "react"
 import { useQueryStore, useUndoRedo } from "@/store/query-store"
 import { useHistoryStore } from "@/store/history-store"
-import { validateTree } from "@/lib/query-engine/validator"
+import { validateTree, formatValidationSummary } from "@/lib/query-engine/validator"
+import { useShowValidationErrors } from "@/hooks/use-show-validation-errors"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Undo2, Redo2, RotateCcw, Download, Upload, Save } from "lucide-react"
@@ -19,8 +20,9 @@ export function Toolbar() {
   const [importError, setImportError] = useState<string | null>(null)
 
   const validation = useMemo(() => validateTree(tree), [tree])
+  const showValidationErrors = useShowValidationErrors()
 
-  const hasStatus = Boolean(importError) || !validation.valid
+  const hasStatus = Boolean(importError) || (showValidationErrors && !validation.valid)
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -214,9 +216,8 @@ function ToolbarStatus({
         </span>
       )}
       {!validation.valid && (
-        <span className="text-[11px] font-mono text-red-400">
-          {validation.errors.length} error
-          {validation.errors.length !== 1 ? "s" : ""}
+        <span className="text-[11px] font-mono text-red-400 break-words max-w-full">
+          {formatValidationSummary(validation.errors)}
         </span>
       )}
     </div>

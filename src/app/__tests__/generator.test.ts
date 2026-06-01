@@ -62,6 +62,36 @@ describe("generateSQL", () => {
     expect(query).toMatch(/OR/)
   })
 
+  it("omits incomplete rules from the preview", () => {
+    const tree = makeTree({
+      root: makeGroup({
+        id: "root",
+        children: [
+          makeRule({ field: "", operator: "equals", value: "" }),
+          makeRule({ field: "age", operator: "greater_than", value: 18 }),
+        ],
+      }),
+    })
+
+    const { query } = generateSQL(tree)
+    expect(query).not.toContain("incomplete rule")
+    expect(query).toContain("age > 18")
+  })
+
+  it("shows a placeholder when no rules are complete", () => {
+    const tree = makeTree({
+      root: makeGroup({
+        id: "root",
+        children: [makeRule({ field: "email", operator: "equals", value: "" })],
+      }),
+    })
+
+    const { query } = generateSQL(tree)
+    expect(query).toContain("SELECT * FROM users")
+    expect(query).toContain("Complete your conditions")
+    expect(query).not.toContain("email = ''")
+  })
+
   it("emits IS NULL and BETWEEN for nullary and range operators", () => {
     const tree = makeTree({
       root: makeGroup({

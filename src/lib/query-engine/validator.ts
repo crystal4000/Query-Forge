@@ -86,3 +86,24 @@ export function validateTree(tree: QueryTree): ValidationResult {
     errors,
   }
 }
+
+export function isRuleComplete(rule: ConditionRule, schemaId: string): boolean {
+  const errors: ValidationError[] = []
+  validateRule(rule, schemaId, errors)
+  return errors.length === 0
+}
+
+/** Human-readable summary for toolbar / preview status (not just "N errors"). */
+export function formatValidationSummary(errors: ValidationError[]): string {
+  if (errors.length === 0) return ""
+
+  if (errors.length === 1) return errors[0].message
+
+  const unique = [...new Set(errors.map((e) => e.message))]
+  if (unique.length === 1) {
+    return `${errors.length} conditions — ${unique[0]}`
+  }
+
+  const preview = unique.slice(0, 2).join(" · ")
+  return unique.length > 2 ? `${preview} · …` : preview
+}

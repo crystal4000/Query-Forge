@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { validateTree } from "@/lib/query-engine/validator"
+import { validateTree, formatValidationSummary } from "@/lib/query-engine/validator"
 import { makeGroup, makeRule, makeTree } from "./test-helpers"
 
 describe("validateTree", () => {
@@ -92,5 +92,21 @@ describe("validateTree", () => {
     const result = validateTree(tree)
     expect(result.valid).toBe(false)
     expect(result.errors.some((e) => e.nodeId === "inner")).toBe(true)
+  })
+})
+
+describe("formatValidationSummary", () => {
+  it("returns a single error message verbatim", () => {
+    expect(formatValidationSummary([{ nodeId: "r1", message: "Select a field" }])).toBe(
+      "Select a field"
+    )
+  })
+
+  it("summarizes multiple errors with the same message", () => {
+    const summary = formatValidationSummary([
+      { nodeId: "r1", message: "Enter a value" },
+      { nodeId: "r2", message: "Enter a value" },
+    ])
+    expect(summary).toBe("2 conditions — Enter a value")
   })
 })

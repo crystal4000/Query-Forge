@@ -6,7 +6,8 @@ import { useUIStore } from "@/store/ui-store"
 import { useHistoryStore } from "@/store/history-store"
 import { generateQuery } from "@/lib/query-engine/generator"
 import { executeQuery } from "@/lib/query-engine/executor"
-import { validateTree } from "@/lib/query-engine/validator"
+import { validateTree, formatValidationSummary } from "@/lib/query-engine/validator"
+import { useShowValidationErrors } from "@/hooks/use-show-validation-errors"
 import { Button } from "@/components/ui/button"
 import { Copy, Check, Play } from "lucide-react"
 import { ResultsSection } from "../results/ResultsSection"
@@ -27,8 +28,10 @@ export function PreviewPanel() {
     setQueryRunning,
     queryRunning,
     resultsOpen,
+    lastRun,
     openResults,
     setMobilePanel,
+    revealValidation,
   } = useUIStore()
   const { addToHistory } = useHistoryStore()
   const [copied, setCopied] = useState(false)
@@ -43,6 +46,7 @@ export function PreviewPanel() {
   }, [output])
 
   const validation = useMemo(() => validateTree(tree), [tree])
+  const showValidationErrors = useShowValidationErrors()
 
   async function handleCopy() {
     await navigator.clipboard.writeText(previewText)
@@ -51,7 +55,10 @@ export function PreviewPanel() {
   }
 
   async function handleRun() {
-    if (!validation.valid) return
+    if (!validation.valid) {
+      revealValidation()
+      return
+    }
     setQueryRunning(true)
 
     await new Promise((resolve) => setTimeout(resolve, 300))
@@ -105,37 +112,40 @@ export function PreviewPanel() {
 
       <ResultsSection />
 
-      <div className="border-t border-border p-3 flex items-center justify-between shrink-0 gap-2">
-        <span className="text-[11px] font-mono text-text-faint min-w-0">
+      <div className="border-t border-border px-3 py-2.5 flex flex-col gap-2 shrink-0">
+        <p className="text-[11px] font-mono text-center leading-snug min-w-0">
           {!validation.valid ? (
-            <span className="text-red-400">
-              {validation.errors.length} error
-              {validation.errors.length !== 1 ? "s" : ""}
-            </span>
+            showValidationErrors ? (
+              <span className="text-red-400">{formatValidationSummary(validation.errors)}</span>
+            ) : (
+              <span className="text-text-faint">Add a condition to run</span>
+            )
           ) : (
-            "ready"
+            <span className="text-text-faint">ready</span>
           )}
-        </span>
+        </p>
 
-        {!resultsOpen && (
-          <button
-            type="button"
-            onClick={openResults}
-            className="text-[10px] font-mono text-text-faint hover:text-accent transition-colors shrink-0"
+        <div className="flex items-center justify-end gap-2">
+          {lastRun && !resultsOpen && (
+            <button
+              type="button"
+              onClick={openResults}
+              className="text-[10px] font-mono text-text-faint hover:text-accent transition-colors shrink-0 mr-auto"
+            >
+              show results
+            </button>
+          )}
+
+          <Button
+            onClick={handleRun}
+            disabled={!validation.valid || queryRunning}
+            size="sm"
+            className="h-7 text-xs bg-accent text-background hover:bg-accent-hover gap-1.5 font-medium disabled:opacity-40 shrink-0"
           >
-            show results
-          </button>
-        )}
-
-        <Button
-          onClick={handleRun}
-          disabled={!validation.valid || queryRunning}
-          size="sm"
-          className="h-7 text-xs bg-accent text-background hover:bg-accent-hover gap-1.5 font-medium disabled:opacity-40"
-        >
-          <Play size={10} />
-          {queryRunning ? "Running..." : "Run"}
-        </Button>
+            <Play size={10} />
+            {queryRunning ? "Running..." : "Run"}
+          </Button>
+        </div>
       </div>
     </aside>
   )
@@ -168,6 +178,12 @@ function SQLHighlight({ text }: { text: string }) {
   return (
     <>
       {parts.map((part, i) => {
+        if (/^--/.test(part.trim()) || part.includes("-- "))
+          return (
+            <span key={i} className="text-text-faint italic">
+              {part}
+            </span>
+          )
         if (keywords.includes(part))
           return (
             <span key={i} className="text-accent">

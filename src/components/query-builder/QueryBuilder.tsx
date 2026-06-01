@@ -4,6 +4,7 @@ import { useMemo, useSyncExternalStore } from "react"
 import { ConditionGroup } from "./ConditionGroup"
 import { useQueryStore } from "@/store/query-store"
 import { validateTree } from "@/lib/query-engine/validator"
+import { useShowValidationErrors } from "@/hooks/use-show-validation-errors"
 
 function subscribe() {
   return () => {}
@@ -20,11 +21,13 @@ function useIsClient() {
 export function QueryBuilder() {
   const tree = useQueryStore((s) => s.tree)
   const isClient = useIsClient()
+  const showValidationErrors = useShowValidationErrors()
 
   const errorIds = useMemo(() => {
+    if (!showValidationErrors) return new Set<string>()
     const result = validateTree(tree)
     return new Set(result.errors.map((e) => e.nodeId))
-  }, [tree])
+  }, [tree, showValidationErrors])
 
   if (!isClient) return null
 

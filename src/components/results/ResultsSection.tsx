@@ -27,7 +27,7 @@ export function ResultsSection() {
         <EmptyState
           icon={<Play size={18} strokeWidth={1.5} />}
           title="No results yet"
-          description="Fix validation errors, then click Run to filter mock data."
+          description="Complete your conditions, then click Run to filter mock data."
           className="py-6"
         />
       </div>
